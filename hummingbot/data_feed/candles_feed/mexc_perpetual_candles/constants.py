@@ -24,6 +24,6 @@ INTERVALS = bidict({
 REQUEST_WEIGHT = "REQUEST_WEIGHT"
 
 RATE_LIMITS = [
-    RateLimit(REQUEST_WEIGHT, limit=20, time_interval=120),
-    RateLimit(CANDLES_ENDPOINT, limit=20, time_interval=120),
-    RateLimit(HEALTH_CHECK_ENDPOINT, limit=20, time_interval=120)]
+    RateLimit(REQUEST_WEIGHT, limit=20, time_interval=2),
+    RateLimit(CANDLES_ENDPOINT, limit=20, time_interval=2),
+    RateLimit(HEALTH_CHECK_ENDPOINT, limit=20, time_interval=2)]
