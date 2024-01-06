@@ -88,9 +88,9 @@ class MexcPerpetualCandles(CandlesBase):
         rest_assistant = await self._api_factory.get_rest_assistant()
         params = {"interval": self.intervals[self.interval], "limit": limit}
         if start_time:
-            params["startTime"] = start_time
+            params["start"] = start_time
         if end_time:
-            params["endTime"] = end_time
+            params["end"] = end_time
         candles = await rest_assistant.execute_request(url=self.candles_url + f"/{self._ex_trading_pair}",
                                                        throttler_limit_id=CONSTANTS.CANDLES_ENDPOINT,
                                                        params=params)
