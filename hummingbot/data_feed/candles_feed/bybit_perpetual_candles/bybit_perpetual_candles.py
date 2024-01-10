@@ -86,15 +86,15 @@ class BybitPerpetualCandles(CandlesBase):
         return np.array(ts).astype(float)
 
     async def fill_historical_candles(self):
-        max_request_needed = (self._candles.maxlen // 2000) + 1
+        max_request_needed = (self._candles.maxlen // 1000) + 1
         requests_executed = 0
         while not self.is_ready:
             missing_records = self._candles.maxlen - len(self._candles)
-            end_timestamp = int(self._candles[0][0] / 1000)
+            end_timestamp = int(self._candles[0][0])
             try:
                 if requests_executed < max_request_needed:
                     # we have to add one more since, the last row is not going to be included
-                    candles = await self.fetch_candles(end_time=end_timestamp, limit=min(2000, missing_records + 1))
+                    candles = await self.fetch_candles(end_time=end_timestamp, limit=min(1000, missing_records + 1))
                     # we are computing again the quantity of records again since the websocket process is able to
                     # modify the deque and if we extend it, the new observations are going to be dropped.
                     missing_records = self._candles.maxlen - len(self._candles)
@@ -141,13 +141,13 @@ class BybitPerpetualCandles(CandlesBase):
             data: Dict[str, Any] = ws_response.data
             # data will be None when the websocket is disconnected
             if data is not None and data.get("topic", "").startswith("kline"):
-                timestamp = int(data["data"]["timestamp"])
-                open = float(data["data"]["open"])
-                low = float(data["data"]["low"])
-                high = float(data["data"]["high"])
-                close = float(data["data"]["close"])
-                volume = float(data["data"]["volume"])
-                quote_asset_volume = float(data["data"]["turnover"])
+                timestamp = int(data["data"][0]["timestamp"])
+                open = float(data["data"][0]["open"])
+                low = float(data["data"][0]["low"])
+                high = float(data["data"][0]["high"])
+                close = float(data["data"][0]["close"])
+                volume = float(data["data"][0]["volume"])
+                quote_asset_volume = float(data["data"][0]["turnover"])
                 n_trades = None
                 taker_buy_base_volume = None
                 taker_buy_quote_volume = None
@@ -167,3 +167,4 @@ class BybitPerpetualCandles(CandlesBase):
                     self._candles.append(np.array([timestamp, open, high, low, close, volume,
                                                    quote_asset_volume, n_trades, taker_buy_base_volume,
                                                    taker_buy_quote_volume]))
+            await websocket_assistant.disconnect()
