@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from hummingbot.data_feed.candles_feed.ascend_ex_spot_candles.ascend_ex_spot_candles import AscendExSpotCandles
 from hummingbot.data_feed.candles_feed.binance_perpetual_candles import BinancePerpetualCandles
 from hummingbot.data_feed.candles_feed.binance_spot_candles import BinanceSpotCandles
+from hummingbot.data_feed.candles_feed.bybit_perpetual_candles import BybitPerpetualCandles
 from hummingbot.data_feed.candles_feed.gate_io_perpetual_candles import GateioPerpetualCandles
 from hummingbot.data_feed.candles_feed.gate_io_spot_candles import GateioSpotCandles
 from hummingbot.data_feed.candles_feed.kucoin_spot_candles.kucoin_spot_candles import KucoinSpotCandles
@@ -53,5 +54,7 @@ class CandlesFactory:
             return KucoinSpotCandles(trading_pair, interval, max_records)
         elif connector == "ascend_ex":
             return AscendExSpotCandles(trading_pair, interval, max_records)
+        elif connector == "bybit_perpetual":
+            return BybitPerpetualCandles(trading_pair, interval, max_records)
         else:
             raise Exception(f"The connector {connector} is not available. Please select another one.")
