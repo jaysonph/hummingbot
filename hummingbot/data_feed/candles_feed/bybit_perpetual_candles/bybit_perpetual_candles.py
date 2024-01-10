@@ -167,4 +167,3 @@ class BybitPerpetualCandles(CandlesBase):
                     self._candles.append(np.array([timestamp, open, high, low, close, volume,
                                                    quote_asset_volume, n_trades, taker_buy_base_volume,
                                                    taker_buy_quote_volume]))
-            await websocket_assistant.disconnect()
