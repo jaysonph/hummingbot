@@ -82,7 +82,7 @@ class BybitPerpetualCandles(CandlesBase):
                                                        throttler_limit_id=CONSTANTS.CANDLES_ENDPOINT,
                                                        params=params)
 
-        ts = candles["result"]["list"]
+        ts = candles["result"]["list"][::-1]
         return np.array(ts).astype(float)
 
     async def fill_historical_candles(self):
@@ -108,9 +108,9 @@ class BybitPerpetualCandles(CandlesBase):
                 raise
             except Exception:
                 self.logger().exception(
-                    "Unexpected error occurred when getting historical klines. Retrying in 1 seconds...",
+                    "Unexpected error occurred when getting historical klines. Retrying in 5 seconds...",
                 )
-                await self._sleep(1.0)
+                await self._sleep(5.0)
 
     async def _subscribe_channels(self, ws: WSAssistant):
         """
@@ -141,7 +141,7 @@ class BybitPerpetualCandles(CandlesBase):
             data: Dict[str, Any] = ws_response.data
             # data will be None when the websocket is disconnected
             if data is not None and data.get("topic", "").startswith("kline"):
-                timestamp = int(data["data"][0]["timestamp"])
+                timestamp = int(data["data"][0]["start"])
                 open = float(data["data"][0]["open"])
                 low = float(data["data"][0]["low"])
                 high = float(data["data"][0]["high"])
