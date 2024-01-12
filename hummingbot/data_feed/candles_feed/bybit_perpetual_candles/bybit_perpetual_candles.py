@@ -94,12 +94,16 @@ class BybitPerpetualCandles(CandlesBase):
                 # we have to add one more since, the last row is not going to be included
                 rows_needed = min(limit, missing_records + 1)
                 candles = await self.fetch_candles(end_time=end_timestamp, limit=rows_needed)
+                unavailable = len(candles) < rows_needed
+                # to avoid duplicate rows
+                end_timestamp = int(self._candles[0][0])
+                candles = candles[candles[:, 0] < end_timestamp]
                 # we are computing again the quantity of records again since the websocket process is able to
                 # modify the deque and if we extend it, the new observations are going to be dropped.
                 missing_records = self._candles.maxlen - len(self._candles)
                 self._candles.extendleft(candles[-(missing_records + 1):-1][::-1])
 
-                if len(candles) < rows_needed:
+                if unavailable:
                     self.logger().error(
                         f"There is no data available for the quantity of "
                         f"candles requested for {self.name}. "
