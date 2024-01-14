@@ -24,6 +24,7 @@ class BybitPerpetualCandles(CandlesBase):
         return cls._logger
 
     def __init__(self, trading_pair: str, interval: str = "1m", max_records: int = 150):
+        self.candle_reached_end = False
         super().__init__(trading_pair, interval, max_records)
 
     @property
@@ -53,6 +54,13 @@ class BybitPerpetualCandles(CandlesBase):
     @property
     def intervals(self):
         return CONSTANTS.INTERVALS
+    
+    @property
+    def is_ready(self):
+        """
+        This property returns a boolean indicating whether the _candles deque has reached its maximum length.
+        """
+        return len(self._candles) == self._candles.maxlen or self.candle_reached_end
 
     async def check_network(self) -> NetworkStatus:
         rest_assistant = await self._api_factory.get_rest_assistant()
@@ -97,7 +105,6 @@ class BybitPerpetualCandles(CandlesBase):
                 unavailable = len(candles) < rows_needed
                 # to avoid duplicate rows
                 end_timestamp = int(self._candles[0][0])
-                candles = candles[candles[:, 0] < end_timestamp]
                 # we are computing again the quantity of records again since the websocket process is able to
                 # modify the deque and if we extend it, the new observations are going to be dropped.
                 missing_records = self._candles.maxlen - len(self._candles)
@@ -109,6 +116,7 @@ class BybitPerpetualCandles(CandlesBase):
                         f"candles requested for {self.name}. "
                         f"Needed {self._candles.maxlen} rows but got {len(self._candles)}.",
                     )
+                    self.candle_reached_end = True
                     break
             except asyncio.CancelledError:
                 raise
